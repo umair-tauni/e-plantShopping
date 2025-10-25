@@ -8,11 +8,15 @@ function ProductList({ onHomeClick }) {
     const dispatch = useDispatch();
     const cartItems = useSelector(state => state.cart.items); // Access cart items from Redux store
     const [showCart, setShowCart] = useState(false);
-    const [addedToCart, setAddedToCart] = useState({}); // State to track which products are added to cart (used in handleAddToCart)
 
     // Calculate total quantity of items in cart
     const calculateTotalQuantity = () => {
         return cartItems ? cartItems.reduce((total, item) => total + item.quantity, 0) : 0;
+    };
+
+    // Check if a product is in the cart based on Redux state
+    const isProductInCart = (productName) => {
+        return cartItems.some(item => item.name === productName);
     };
 
     const plantsArray = [
@@ -264,10 +268,6 @@ function ProductList({ onHomeClick }) {
 
     const handleAddToCart = (product) => {
         dispatch(addItem(product)); // Dispatch the action to add the product to the cart (Redux action)
-        setAddedToCart((prevState) => ({ // Update the local state to reflect that the product has been added
-            ...prevState, // Spread the previous state to retain existing entries
-            [product.name]: true, // Set the current product's name as a key with value 'true' to mark it as added
-        }));
     };
     return (
         <div>
@@ -314,11 +314,11 @@ function ProductList({ onHomeClick }) {
                                         <div className="product-description">{plant.description}</div> {/* Display plant description */}
                                         <div className="product-cost">${plant.cost}</div> {/* Display plant cost */}
                                         <button
-                                            className={`product-button ${addedToCart[plant.name] ? 'added-to-cart' : ''}`}
+                                            className={`product-button ${isProductInCart(plant.name) ? 'added-to-cart' : ''}`}
                                             onClick={() => handleAddToCart(plant)} // Handle adding plant to cart
-                                            disabled={addedToCart[plant.name]} // Disable button if item is already added
+                                            disabled={isProductInCart(plant.name)} // Disable button if item is already added
                                         >
-                                            {addedToCart[plant.name] ? 'Added to Cart' : 'Add to Cart'}
+                                            {isProductInCart(plant.name) ? 'Added to Cart' : 'Add to Cart'}
                                         </button>
                                     </div>
                                 ))}
